@@ -1,12 +1,14 @@
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { addContact, deleteContact } from '../redux/contacts/contacts-slice';
+import {
+  fetchAllContacts,
+  fetchAddContact,
+  fetchDeleteContact,
+} from '.././redux/contacts/contacts-operations';
 import { setFilter } from '../redux/filter/filter-slice';
 
-import {
-  getAllContacts,
-  getFilteredContacts,
-} from '../redux/contacts/contacts-selectors';
+import { getFilteredContacts } from '../redux/contacts/contacts-selectors';
 import { getFilter } from '../redux/filter/filter-selectors';
 
 import ContactList from './ContactList/ContactList';
@@ -17,30 +19,21 @@ import css from './ContactForm/contact-form.module.css';
 
 export const App = () => {
   const filteredContacts = useSelector(getFilteredContacts);
-  const allContacts = useSelector(getAllContacts);
+
   const filter = useSelector(getFilter);
 
   const dispatch = useDispatch();
 
-  const isDublicate = name => {
-    const normalizedName = name.toLowerCase();
-    const result = allContacts.find(({ name }) => {
-      return name.toLowerCase() === normalizedName;
-    });
-
-    return Boolean(result);
-  };
+  useEffect(() => {
+    dispatch(fetchAllContacts());
+  }, [dispatch]);
 
   const handleAddContact = ({ name, number }) => {
-    if (isDublicate(name)) {
-      alert(`Contact ${name} - is already in contacts`);
-      return false;
-    }
-    dispatch(addContact({ name, number }));
+    dispatch(fetchAddContact({ name, number }));
   };
 
   const handleRemoveContact = id => {
-    dispatch(deleteContact(id));
+    dispatch(fetchDeleteContact(id));
   };
 
   const handleFilter = ({ target }) => dispatch(setFilter(target.value));
